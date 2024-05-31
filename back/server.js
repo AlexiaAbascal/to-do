@@ -12,7 +12,7 @@ app.use(morgan('dev'))
 app.use(express.json())
 
 // routes
-app.use('/tasks', tasksRoutes);
+app.use('/api', tasksRoutes);
 
 // connects to db
 mongoose.connect(process.env.MONGO_URL)

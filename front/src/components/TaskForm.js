@@ -1,101 +1,60 @@
-import { useState } from "react"
-import { useTasksContext } from '../hooks/useTasksContext'
+import { useState } from "react";
 
-const TaskForm = () => {
-    const { dispatch } = useTasksContext()
+const TaskForm = ({userId}) => {
 
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
-    const [due_date, setDue_date] = useState('')
-    const [status, setStatus] = useState('')
-    const [error, setError] = useState(null)
-    const [emptyFields, setEmptyFields] = useState([])
-
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
 
-        const task = { title, description, due_date, status }
+        try {
+            const response = await fetch(`/api/users/${userId}/tasks`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, description })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to add task')
+            }
 
-        const response = await fetch('/tasks', {
-            method: 'POST',
-            body: JSON.stringify(task),
-            headers: { 'Content-Type': 'application/json' }
-        })
-
-        const json = await response.json()
-
-        if (!response.ok) {
-            setError(json.error)
-            setEmptyFields(json.emptyFields)
-        }
-        if (response.ok) {
-            setTitle('')
-            setDescription('')
-            setDue_date('')
-            setStatus('')
-            setEmptyFields([])
-
-            setError(null)
-            console.log('new task added', json)
-
-            dispatch({ type: 'CREATE_TASK', payload: json })
+            setTitle('');
+            setDescription('');
+        } catch (error) {
+            console.error('Error adding task: ' + error.message)
         }
     }
 
     return (
-        <form className="create grid grid-cols-1" onSubmit={handleSubmit}>
-
-            <h3 className="text-center">Add a new task</h3>
-            <label className="ml-2">Title </label>
-            <input
-                type="text"
-                onChange={(e) => setTitle(e.target.value)}
-                value={title}
-                className="{emptyFields.includes('title') ? 'error' : ''} block m-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-
-            />
-
-            <label className="ml-2">Description: </label>
-            <input
-                type="text"
-                onChange={(e) => setDescription(e.target.value)}
-                value={description}
-                className="{emptyFields.includes('description') ? 'error' : ''} block m-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-
-            />
-
-            <label className="ml-2">Due date: </label>
-            <input
-                type="date"
-                onChange={(e) => setDue_date(e.target.value)}
-                value={due_date}
-                className="{emptyFields.includes('due_date') ? 'error' : ''} block m-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-
-            />
-
-            <label className="ml-2">Status: </label>
-            <select
-                //type="text"
-                onChange={(e) => setStatus(e.target.value)}
-                value={status}
-                className="{emptyFields.includes('status') ? 'error' : ''} block m-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-
-            >
-            <option value=""> Select Status</option>
-            <option value="Pending"> Pending</option>
-            <option value="Urgent"> Urgent </option>
-            </select>
-
-            <div className="flex justify-center">
-                <button className="bg-[#2E151B] mt-4 text-white text-sm w-[25%] rounded-full text-center content-center">Add Task</button>
+        <form className="create grid grid-cols-1 mr-3 ml-3 mt-3 p-4 bg-[#c0b8ba] rounded-lg shadow-lg" onSubmit={handleSubmit}>
+            <h3 className="text-center text-lg font-semibold mb-4 text-[#2E151B]">Add a new task</h3>
+            <div className="mb-4">
+                <label className="block mb-1 text-[#2E151B] font-semibold">Title</label>
+                <input
+                    className="w-full border rounded-md py-1 px-3"
+                    type="text"
+                    onChange={(e) => setTitle(e.target.value)}
+                    value={title}
+                    placeholder="Enter title"
+                />
             </div>
-            {error && <div className="error">{error}</div>}
+            <div className="mb-4">
+                <label className="block mb-1 text-[#2E151B] font-semibold">Description</label>
+                <input
+                    className="w-full border rounded-md py-1 px-3"
+                    type="text"
+                    onChange={(e) => setDescription(e.target.value)}
+                    value={description}
+                    placeholder="Enter description"
+                />
+            </div>
+            <div className="flex justify-center">
+                <button className="bg-[#2E151B] text-white text-sm py-2 px-6 rounded-full">
+                    Add Task
+                </button>
+            </div>
         </form>
+    );
+};
 
-
-
-    )
-}
-
-export default TaskForm
+export default TaskForm;

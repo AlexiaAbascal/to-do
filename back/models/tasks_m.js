@@ -11,14 +11,10 @@ const taskSchema = new Schema({
         type : String,
         required : true
     },
-    due_date : {
-        type : Date,
-        required : true
-    },
-    status : {
-        type : String,
-        required : true
+    assignedTo : {
+        type : Schema.Types.ObjectId,
+        ref : 'User'
     }
-}, { timestamps: true })
+})
 
-module.exports = mongoose.model('Task',taskSchema)
+module.exports = mongoose.model('Task',taskSchema);
